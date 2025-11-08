@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO Meta Tags -->
+    <title>{% block title %}{{ page_title|default:"engg.pk - Engineering Community of Pakistan" }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ meta_description|default:'Empowering Pakistani engineers with knowledge, opportunities, and community. Join us to connect, learn, and grow.' }}{% endblock %}">
+    <meta name="keywords" content="Pakistan engineering, engineering community, engineering jobs Pakistan, engineering universities Pakistan, scholarships, career guidance, NUST, UET, GIKI">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}{{ page_title|default:'engg.pk - Engineering Community of Pakistan' }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ meta_description|default:'Empowering Pakistani engineers with knowledge, opportunities, and community.' }}{% endblock %}">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            300: '#86efac',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+
+    <!-- Alpine.js for lightweight interactions -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Navigation -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <a href="{% url 'core:home' %}" class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-xl">E</span>
+                    </div>
+                    <div>
+                        <div class="text-xl font-bold text-gray-900">engg.pk</div>
+                        <div class="text-xs text-gray-500 hidden sm:block">Engineering Community of Pakistan</div>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden lg:flex space-x-1">
+                    {% with request.resolver_match.app_name as current_app %}
+                    <a href="{% url 'core:home' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if request.path == '/' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                        Home
+                    </a>
+                    <a href="{% url 'forum:list' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if current_app == 'forum' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                        Forum
+                    </a>
+                    <a href="{% url 'universities:list' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if current_app == 'universities' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                        Universities
+                    </a>
+                    <a href="{% url 'careers:list' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if current_app == 'careers' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                        Careers
+                    </a>
+                    <a href="{% url 'jobs:list' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if current_app == 'jobs' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                        Jobs
+                    </a>
+                    <a href="{% url 'scholarships:list' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if current_app == 'scholarships' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                        Scholarships
+                    </a>
+                    <a href="{% url 'insights:list' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if current_app == 'insights' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                        Insights
+                    </a>
+                    <a href="{% url 'startups:list' %}" class="px-3 py-2 rounded-md text-sm font-medium {% if current_app == 'startups' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+                        Startups
+                    </a>
+                    {% endwith %}
+                </nav>
+
+                <!-- Mobile menu button -->
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="lg:hidden p-2 rounded-md text-gray-700 hover:bg-gray-100">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation -->
+        <div x-show="mobileMenuOpen" x-cloak class="lg:hidden border-t border-gray-200 bg-white">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                {% with request.resolver_match.app_name as current_app %}
+                <a href="{% url 'core:home' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if request.path == '/' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Home</a>
+                <a href="{% url 'forum:list' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if current_app == 'forum' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Forum</a>
+                <a href="{% url 'universities:list' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if current_app == 'universities' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Universities</a>
+                <a href="{% url 'careers:list' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if current_app == 'careers' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Careers</a>
+                <a href="{% url 'jobs:list' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if current_app == 'jobs' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Jobs</a>
+                <a href="{% url 'scholarships:list' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if current_app == 'scholarships' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Scholarships</a>
+                <a href="{% url 'insights:list' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if current_app == 'insights' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Insights</a>
+                <a href="{% url 'startups:list' %}" class="block px-3 py-2 rounded-md text-base font-medium {% if current_app == 'startups' %}bg-primary-50 text-primary-700{% else %}text-gray-700 hover:bg-gray-50{% endif %}">Startups</a>
+                {% endwith %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">About engg.pk</h3>
+                    <p class="text-gray-600 text-sm">
+                        A community-driven platform for Pakistani engineers to connect, learn, and grow.
+                        Empowering engineers with knowledge, opportunities, and guidance.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Mission</h3>
+                    <p class="text-gray-600 text-sm">
+                        To revive engineering excellence in Pakistan, combat brain drain, and guide
+                        engineers towards fulfilling technical careers while promoting independence
+                        from colonial mindsets.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Links</h3>
+                    <ul class="space-y-2">
+                        <li><a href="{% url 'core:about' %}" class="text-gray-600 hover:text-primary-600 text-sm">About Us</a></li>
+                        <li><a href="{% url 'forum:list' %}" class="text-gray-600 hover:text-primary-600 text-sm">Community Forum</a></li>
+                        <li><a href="{% url 'jobs:list' %}" class="text-gray-600 hover:text-primary-600 text-sm">Job Opportunities</a></li>
+                        <li><a href="{% url 'scholarships:list' %}" class="text-gray-600 hover:text-primary-600 text-sm">Scholarships</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-gray-200 text-center text-sm text-gray-500">
+                <p>&copy; 2024 engg.pk - Engineering Community of Pakistan. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('app', () => ({
+                mobileMenuOpen: false
+            }))
+        })
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

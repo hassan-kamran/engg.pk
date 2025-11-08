@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Industry Insights</h1>
+        <p class="text-gray-600">Learn about real-world applications and industry trends from verified Pakistani engineering experts</p>
+    </div>
+
+    <div class="space-y-6">
+        {% for insight in insights %}
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex items-start space-x-4 mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-white font-semibold">
+                        {{ insight.author.first_name.0|default:insight.author.username.0 }}{{ insight.author.last_name.0|default:'' }}
+                    </div>
+                    <div class="flex-1">
+                        <a href="{% url 'insights:detail' insight.pk %}" class="text-2xl font-bold text-gray-900 hover:text-primary-600 mb-2 block">{{ insight.title }}</a>
+                        <div class="flex items-center space-x-4 text-sm text-gray-600">
+                            <div class="flex items-center space-x-1">
+                                <span class="font-medium">{{ insight.author.get_full_name|default:insight.author.username }}</span>
+                                {% if insight.author.profile.verified %}
+                                <span class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded">Verified {{ insight.author.profile.get_role_display }}</span>
+                                {% endif %}
+                            </div>
+                            <span>{{ insight.created_at|naturaltime }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-2 mb-2">
+                    <span class="px-3 py-1 bg-primary-100 text-primary-700 text-sm font-medium rounded-full">{{ insight.industry }}</span>
+                    <span class="px-3 py-1 bg-purple-100 text-purple-700 text-sm font-medium rounded-full">{{ insight.discipline }}</span>
+                </div>
+
+                <div class="flex flex-wrap gap-2">
+                    {% for topic in insight.topics %}
+                    <span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">{{ topic }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="p-6">
+                <p class="text-gray-700 leading-relaxed mb-4">{{ insight.content|truncatewords:50 }}</p>
+
+                <div class="flex items-center space-x-6 text-sm text-gray-500">
+                    <div class="flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        <span>{{ insight.views }} views</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                        </svg>
+                        <span>{{ insight.helpful_count }} found helpful</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+            </svg>
+            <p class="text-gray-600">No insights available yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="mt-8 flex justify-center">
+        <nav class="inline-flex rounded-md shadow-sm -space-x-px">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Previous</a>
+            {% endif %}
+            <span class="px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">Next</a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

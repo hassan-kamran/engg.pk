@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-primary-600 to-primary-800 text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                Engineering Community of Pakistan
+            </h1>
+            <p class="text-xl md:text-2xl mb-8 text-primary-100 max-w-3xl mx-auto">
+                Empowering Pakistani engineers with knowledge, opportunities, and community.
+                Together, we can revive engineering excellence and build a stronger Pakistan.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="{% url 'forum:list' %}" class="bg-white text-primary-700 px-8 py-3 rounded-lg font-semibold hover:bg-primary-50 transition-colors">
+                    Join the Forum
+                </a>
+                <a href="{% url 'core:about' %}" class="bg-primary-700 text-white px-8 py-3 rounded-lg font-semibold hover:bg-primary-800 transition-colors border-2 border-white">
+                    Learn More
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="bg-white py-12 border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="text-4xl font-bold text-primary-600 mb-2">1000+</div>
+                <div class="text-gray-600">Community Members</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-primary-600 mb-2">50+</div>
+                <div class="text-gray-600">University Programs</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-primary-600 mb-2">200+</div>
+                <div class="text-gray-600">Job Listings</div>
+            </div>
+            <div class="text-center">
+                <div class="text-4xl font-bold text-primary-600 mb-2">100+</div>
+                <div class="text-gray-600">Scholarships</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section class="py-16 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Our Mission</h2>
+            <p class="text-lg text-gray-600">
+                We believe in empowering Pakistani engineers to excel in their fields, contribute to national
+                development, and compete globally while maintaining their technical independence and critical thinking.
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Connect Engineers</h3>
+                <p class="text-gray-600">
+                    Build a strong community where students, professionals, and experts can share knowledge and experiences.
+                </p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Share Knowledge</h3>
+                <p class="text-gray-600">
+                    Provide curated, expert-verified information about education, careers, and technical topics.
+                </p>
+            </div>
+
+            <div class="bg-white p-6 rounded-lg shadow-sm">
+                <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                    <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-2">Combat Brain Drain</h3>
+                <p class="text-gray-600">
+                    Showcase opportunities in Pakistan and guide engineers towards fulfilling local careers.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Grid -->
+<section class="py-16 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Explore Our Platform</h2>
+            <p class="text-lg text-gray-600">
+                Everything you need to navigate your engineering journey in Pakistan
+            </p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <a href="{% url 'forum:list' %}" class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all hover:border-primary-300">
+                <div class="w-12 h-12 bg-blue-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Community Forum</h3>
+                <p class="text-sm text-gray-600">Discuss technical questions, career guidance, and industry insights</p>
+            </a>
+
+            <a href="{% url 'universities:list' %}" class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all hover:border-primary-300">
+                <div class="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">University Reviews</h3>
+                <p class="text-sm text-gray-600">Honest reviews and comparisons of engineering programs across Pakistan</p>
+            </a>
+
+            <a href="{% url 'careers:list' %}" class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all hover:border-primary-300">
+                <div class="w-12 h-12 bg-primary-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Career Paths</h3>
+                <p class="text-sm text-gray-600">Explore different engineering careers and learn from professionals</p>
+            </a>
+
+            <a href="{% url 'jobs:list' %}" class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all hover:border-primary-300">
+                <div class="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Job Board</h3>
+                <p class="text-sm text-gray-600">Find engineering job opportunities across Pakistan</p>
+            </a>
+
+            <a href="{% url 'scholarships:list' %}" class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all hover:border-primary-300">
+                <div class="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Scholarships</h3>
+                <p class="text-sm text-gray-600">Discover scholarship opportunities for undergraduate and graduate studies</p>
+            </a>
+
+            <a href="{% url 'insights:list' %}" class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all hover:border-primary-300">
+                <div class="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Industry Insights</h3>
+                <p class="text-sm text-gray-600">Learn about real-world applications and industry trends from experts</p>
+            </a>
+
+            <a href="{% url 'core:subjects' %}" class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all hover:border-primary-300">
+                <div class="w-12 h-12 bg-indigo-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Subject Connections</h3>
+                <p class="text-sm text-gray-600">Understand how different subjects connect and apply to real problems</p>
+            </a>
+
+            <a href="{% url 'startups:list' %}" class="group bg-white border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-all hover:border-primary-300">
+                <div class="w-12 h-12 bg-pink-500 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Startup Resources</h3>
+                <p class="text-sm text-gray-600">Access resources, funding opportunities, and guidance for tech startups</p>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="bg-gradient-to-r from-primary-600 to-primary-700 text-white py-16">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold mb-4">Ready to Join the Community?</h2>
+        <p class="text-xl text-primary-100 mb-8">
+            Connect with fellow engineers, access expert knowledge, and take control of your engineering career.
+        </p>
+        <a href="{% url 'forum:list' %}" class="bg-white text-primary-700 px-8 py-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors inline-block text-lg">
+            Start Exploring
+        </a>
+    </div>
+</section>
+{% endblock %}

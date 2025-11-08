@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <nav class="mb-6 text-sm">
+        <a href="{% url 'scholarships:list' %}" class="text-primary-600 hover:text-primary-800">Scholarships</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <span class="text-gray-600">{{ scholarship.name }}</span>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-sm p-8">
+        <div class="flex items-start justify-between mb-6">
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ scholarship.name }}</h1>
+                <p class="text-xl text-gray-600">{{ scholarship.provider }}</p>
+            </div>
+            <span class="px-4 py-2 text-sm font-medium rounded-lg {% if scholarship.funded == 'fully' %}bg-primary-100 text-primary-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                {{ scholarship.get_funded_display }}
+            </span>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-8 p-6 bg-gray-50 rounded-lg">
+            <div>
+                <div class="text-sm text-gray-600 mb-1">Country</div>
+                <div class="font-semibold text-gray-900">{{ scholarship.country }}</div>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600 mb-1">Education Level</div>
+                <div class="font-semibold text-gray-900">{{ scholarship.get_level_display }}</div>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600 mb-1">Award Amount</div>
+                <div class="font-semibold text-gray-900">{{ scholarship.amount }}</div>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600 mb-1">Application Deadline</div>
+                <div class="font-semibold text-red-600">{{ scholarship.deadline }}</div>
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-3">Eligible Disciplines</h2>
+            <div class="flex flex-wrap gap-2">
+                {% for discipline in scholarship.disciplines %}
+                <span class="px-3 py-1 bg-blue-50 text-blue-700 font-medium rounded-lg">{{ discipline }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">About This Scholarship</h2>
+            <div class="prose max-w-none text-gray-700">{{ scholarship.description|linebreaks }}</div>
+        </div>
+
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Eligibility Criteria</h2>
+            <ul class="space-y-2">
+                {% for item in scholarship.eligibility %}
+                <li class="flex items-start space-x-3">
+                    <svg class="w-5 h-5 text-primary-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-gray-700">{{ item }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a href="{{ scholarship.application_url }}" target="_blank" class="inline-flex items-center space-x-2 px-8 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-lg font-semibold">
+            <span>Apply Now</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+        </a>
+    </div>
+</div>
+{% endblock %}

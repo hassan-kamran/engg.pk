@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <nav class="mb-6 text-sm">
+        <a href="{% url 'insights:list' %}" class="text-primary-600 hover:text-primary-800">Industry Insights</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <span class="text-gray-600">{{ insight.title }}</span>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-sm p-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-6">{{ insight.title }}</h1>
+
+        <div class="flex items-center space-x-4 mb-6 pb-6 border-b border-gray-200">
+            <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-white font-semibold text-xl">
+                {{ insight.author.first_name.0|default:insight.author.username.0 }}{{ insight.author.last_name.0|default:'' }}
+            </div>
+            <div class="flex-1">
+                <div class="font-semibold text-gray-900 text-lg">{{ insight.author.get_full_name|default:insight.author.username }}</div>
+                <div class="flex items-center space-x-3 text-sm text-gray-600">
+                    {% if insight.author.profile.verified %}
+                    <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded">Verified {{ insight.author.profile.get_role_display }}</span>
+                    {% endif %}
+                    {% if insight.author.profile.affiliation %}
+                    <span>{{ insight.author.profile.affiliation }}</span>
+                    {% endif %}
+                    <span>{{ insight.created_at|naturaltime }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-6">
+            <span class="px-4 py-2 bg-primary-100 text-primary-700 font-medium rounded-lg">{{ insight.industry }}</span>
+            <span class="px-4 py-2 bg-purple-100 text-purple-700 font-medium rounded-lg">{{ insight.discipline }}</span>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-8">
+            {% for topic in insight.topics %}
+            <span class="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded">{{ topic }}</span>
+            {% endfor %}
+        </div>
+
+        <div class="prose max-w-none mb-8">
+            {{ insight.content|linebreaks }}
+        </div>
+
+        <div class="flex items-center space-x-6 pt-6 border-t border-gray-200 text-gray-600">
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                <span>{{ insight.views }} views</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                </svg>
+                <span>{{ insight.helpful_count }} found this helpful</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
