@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Subject Connections</h1>
+        <p class="text-gray-600">
+            Understand how different engineering subjects connect and apply to real-world problems and career paths
+        </p>
+    </div>
+
+    <!-- Subjects -->
+    <div class="space-y-6">
+        {% for subject in subjects %}
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
+            <!-- Header -->
+            <div class="flex items-start space-x-4 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-lg flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ subject.subject }}</h3>
+                    <p class="text-gray-600">{{ subject.description }}</p>
+                </div>
+            </div>
+
+            <!-- Related Subjects -->
+            <div class="mb-4">
+                <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                    </svg>
+                    Related Subjects
+                </h4>
+                <div class="flex flex-wrap gap-2">
+                    {% for related in subject.related_subjects %}
+                    <span class="px-3 py-1 bg-blue-50 text-blue-700 text-sm rounded-full">
+                        {{ related }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Applications -->
+            <div class="mb-4">
+                <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                    </svg>
+                    Real-World Applications
+                </h4>
+                <div class="grid md:grid-cols-2 gap-2">
+                    {% for application in subject.applications %}
+                    <div class="flex items-start space-x-2">
+                        <span class="text-purple-600 mt-1">•</span>
+                        <span class="text-gray-700">{{ application }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Career Paths -->
+            <div>
+                <h4 class="font-semibold text-gray-900 mb-3 flex items-center">
+                    <svg class="w-4 h-4 mr-2 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    Related Career Paths
+                </h4>
+                <div class="flex flex-wrap gap-2">
+                    {% for career in subject.career_paths %}
+                    <span class="px-3 py-1 bg-primary-50 text-primary-700 text-sm rounded-full">
+                        {{ career }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            <p class="text-gray-600">No subject connections available yet.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

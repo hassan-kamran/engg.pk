@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <nav class="mb-6 text-sm">
+        <a href="{% url 'startups:list' %}" class="text-purple-600 hover:text-purple-800">Startup Resources</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <span class="text-gray-600">{{ resource.title }}</span>
+    </nav>
+
+    <div class="bg-white rounded-lg shadow-sm p-8">
+        <div class="flex items-start justify-between mb-6">
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ resource.title }}</h1>
+                <p class="text-xl text-gray-600">{{ resource.provider }}</p>
+            </div>
+            <span class="px-4 py-2 bg-purple-100 text-purple-700 font-medium rounded-lg">
+                {{ resource.get_category_display }}
+            </span>
+        </div>
+
+        {% if resource.location %}
+        <div class="flex items-center space-x-2 text-gray-600 mb-6">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+            </svg>
+            <span>{{ resource.location }}</span>
+        </div>
+        {% endif %}
+
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">About</h2>
+            <div class="prose max-w-none text-gray-700">
+                {{ resource.description|linebreaks }}
+            </div>
+        </div>
+
+        {% if resource.eligibility %}
+        <div class="mb-8">
+            <h2 class="text-xl font-bold text-gray-900 mb-4">Eligibility Criteria</h2>
+            <ul class="space-y-2">
+                {% for item in resource.eligibility %}
+                <li class="flex items-start space-x-3">
+                    <svg class="w-5 h-5 text-purple-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-gray-700">{{ item }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if resource.link %}
+        <a href="{{ resource.link }}" target="_blank" class="inline-flex items-center space-x-2 px-8 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-lg font-semibold">
+            <span>Visit Website</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+            </svg>
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

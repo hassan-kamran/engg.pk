@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+        <a href="{% url 'careers:list' %}" class="text-primary-600 hover:text-primary-800">Career Paths</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <span class="text-gray-600">{{ career.title }}</span>
+    </nav>
+
+    <!-- Career Details -->
+    <div class="bg-white rounded-lg shadow-sm p-8 mb-6">
+        <div class="flex items-start justify-between mb-6">
+            <div class="flex-1">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">{{ career.title }}</h1>
+                <p class="text-xl text-primary-600 font-medium">{{ career.discipline }}</p>
+            </div>
+            <div class="w-16 h-16 bg-primary-100 rounded-lg flex items-center justify-center">
+                <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+            </div>
+        </div>
+
+        <p class="text-lg text-gray-700 leading-relaxed mb-8">{{ career.overview }}</p>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-8">
+            <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Key Skills Required</h3>
+                <div class="flex flex-wrap gap-2">
+                    {% for skill in career.skills %}
+                    <span class="px-4 py-2 bg-blue-50 text-blue-700 font-medium rounded-lg">
+                        {{ skill }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-bold text-gray-900 mb-4">Industries</h3>
+                <div class="flex flex-wrap gap-2">
+                    {% for industry in career.industries %}
+                    <span class="px-4 py-2 bg-purple-50 text-purple-700 font-medium rounded-lg">
+                        {{ industry }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6 p-6 bg-gray-50 rounded-lg">
+            <div>
+                <div class="text-sm text-gray-600 mb-1">Salary Range in Pakistan</div>
+                <div class="text-2xl font-bold text-gray-900">{{ career.salary_range }}</div>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600 mb-1">Growth Outlook</div>
+                <div class="text-lg font-semibold text-gray-900">{{ career.growth_outlook }}</div>
+            </div>
+            <div>
+                <div class="text-sm text-gray-600 mb-1">Education Required</div>
+                <div class="text-lg font-semibold text-gray-900">{{ career.education_required|truncatewords:8 }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Experience Stories -->
+    <div class="bg-white rounded-lg shadow-sm p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Experience Stories</h2>
+
+        {% if stories %}
+            {% for story in stories %}
+            <div class="border-b border-gray-200 pb-6 mb-6 last:border-0">
+                <div class="flex items-start space-x-4 mb-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        {{ story.author.first_name.0|default:story.author.username.0 }}{{ story.author.last_name.0|default:'' }}
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-900 mb-1">{{ story.title }}</h3>
+                        <div class="flex items-center space-x-4 text-sm text-gray-600">
+                            <span class="font-medium">{{ story.author.get_full_name|default:story.author.username }}</span>
+                            <span>{{ story.current_position }}</span>
+                            <span>{{ story.years_of_experience }} years experience</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="prose max-w-none">
+                    {{ story.content|linebreaks }}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="text-center py-8">
+            <p class="text-gray-600">No experience stories yet. Be the first to share your story!</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

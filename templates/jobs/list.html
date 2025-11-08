@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Job Opportunities</h1>
+        <p class="text-gray-600">
+            Find engineering job opportunities across Pakistan in various industries
+        </p>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <form hx-get="{% url 'jobs:list' %}" hx-target="#jobs-list" hx-trigger="change, keyup delay:500ms from:find #search" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1 relative">
+                <input
+                    type="text"
+                    name="search"
+                    id="search"
+                    value="{{ search_query }}"
+                    placeholder="Search jobs, companies, or locations..."
+                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                />
+            </div>
+            <select
+                name="type"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+                <option value="">All Types</option>
+                {% for value, label in job_types %}
+                <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+
+    <!-- Jobs List -->
+    <div id="jobs-list" class="space-y-4">
+        {% for job in jobs %}
+        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-6">
+            <div class="flex items-start justify-between mb-4">
+                <div class="flex-1">
+                    <a href="{% url 'jobs:detail' job.pk %}" class="text-xl font-bold text-gray-900 hover:text-primary-600 mb-1 block">
+                        {{ job.title }}
+                    </a>
+                    <p class="text-lg text-primary-600 font-medium mb-2">{{ job.company }}</p>
+
+                    <div class="flex flex-wrap gap-3 text-sm text-gray-600">
+                        <div class="flex items-center space-x-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <span>{{ job.location }}</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>{{ job.get_job_type_display }}</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>{{ job.get_experience_level_display }}</span>
+                        </div>
+                        {% if job.salary %}
+                        <div class="flex items-center space-x-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>{{ job.salary }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="flex items-center space-x-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            </svg>
+                            <span>Posted {{ job.posted_date|naturaltime }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <span class="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                    {{ job.discipline }}
+                </span>
+            </div>
+
+            <p class="text-gray-600 mb-4">{{ job.description|truncatewords:30 }}</p>
+
+            <div class="mb-4">
+                <h4 class="font-semibold text-gray-900 mb-2 text-sm">Requirements:</h4>
+                <ul class="space-y-1">
+                    {% for req in job.requirements|slice:":3" %}
+                    <li class="text-sm text-gray-600 flex items-start">
+                        <span class="text-primary-600 mr-2">•</span>
+                        <span>{{ req }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <a href="{% url 'jobs:detail' job.pk %}" class="inline-flex items-center space-x-2 px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                <span>View Details</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+            </a>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-lg shadow-sm p-12 text-center">
+            <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            <p class="text-gray-600">No jobs found. Try adjusting your search.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="mt-8 flex justify-center">
+        <nav class="inline-flex rounded-md shadow-sm -space-x-px">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&type={{ selected_type }}" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                Previous
+            </a>
+            {% endif %}
+
+            <span class="px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700">
+                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&type={{ selected_type }}" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                Next
+            </a>
+            {% endif %}
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
