@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Job
+from .models import Job, SavedJob, JobApplication
 
 
 @admin.register(Job)
@@ -21,3 +21,20 @@ class JobAdmin(admin.ModelAdmin):
             'fields': ('is_active', 'posted_date')
         }),
     )
+
+
+@admin.register(SavedJob)
+class SavedJobAdmin(admin.ModelAdmin):
+    list_display = ['user', 'job', 'saved_at']
+    list_filter = ['saved_at']
+    search_fields = ['user__username', 'job__title']
+    readonly_fields = ['saved_at']
+
+
+@admin.register(JobApplication)
+class JobApplicationAdmin(admin.ModelAdmin):
+    list_display = ['user', 'job', 'status', 'applied_at', 'updated_at']
+    list_filter = ['status', 'applied_at']
+    search_fields = ['user__username', 'job__title']
+    readonly_fields = ['applied_at', 'updated_at']
+    list_editable = ['status']

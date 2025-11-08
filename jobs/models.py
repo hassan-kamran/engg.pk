@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.urls import reverse
 
 
@@ -44,3 +45,48 @@ class Job(models.Model):
 
     def get_absolute_url(self):
         return reverse('jobs:detail', kwargs={'pk': self.pk})
+
+    @property
+    def saved_count(self):
+        return self.saved_by.count()
+
+
+class SavedJob(models.Model):
+    """Jobs saved by users"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='saved_jobs')
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='saved_by')
+    saved_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'job']
+        ordering = ['-saved_at']
+
+    def __str__(self):
+        return f"{self.user.username} saved {self.job.title}"
+
+
+class JobApplication(models.Model):
+    """Track job applications"""
+    STATUS_CHOICES = [
+        ('applied', 'Applied'),
+        ('reviewing', 'Under Review'),
+        ('interview', 'Interview Scheduled'),
+        ('offer', 'Offer Received'),
+        ('rejected', 'Rejected'),
+        ('accepted', 'Accepted'),
+        ('withdrawn', 'Withdrawn'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='job_applications')
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name='applications')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='applied')
+    notes = models.TextField(blank=True)
+    applied_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ['user', 'job']
+        ordering = ['-applied_at']
+
+    def __str__(self):
+        return f"{self.user.username} applied to {self.job.title}"

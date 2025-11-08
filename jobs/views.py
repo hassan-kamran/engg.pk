@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import Job
+from django.http import HttpResponse
+from .models import Job, SavedJob, JobApplication
 
 
 class JobListView(ListView):
@@ -51,4 +53,56 @@ class JobDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['page_title'] = f'{self.object.title} at {self.object.company} - Jobs - engg.pk'
         context['meta_description'] = self.object.description[:155]
+
+        # Check if user has saved or applied to this job
+        if self.request.user.is_authenticated:
+            context['is_saved'] = SavedJob.objects.filter(user=self.request.user, job=self.object).exists()
+            context['has_applied'] = JobApplication.objects.filter(user=self.request.user, job=self.object).exists()
+
         return context
+
+
+# HTMX Engagement Views
+@login_required
+def toggle_save_job(request, pk):
+    """Toggle save on a job (HTMX)"""
+    job = get_object_or_404(Job, pk=pk)
+
+    saved_job = SavedJob.objects.filter(user=request.user, job=job).first()
+    if saved_job:
+        saved_job.delete()
+        is_saved = False
+    else:
+        SavedJob.objects.create(user=request.user, job=job)
+        is_saved = True
+
+    # Return updated save button HTML
+    return render(request, 'jobs/partials/save_button.html', {
+        'job': job,
+        'is_saved': is_saved
+    })
+
+
+@login_required
+def track_application(request, pk):
+    """Track job application (HTMX)"""
+    job = get_object_or_404(Job, pk=pk)
+
+    application, created = JobApplication.objects.get_or_create(
+        user=request.user,
+        job=job
+    )
+
+    if request.method == 'POST':
+        status = request.POST.get('status', 'applied')
+        notes = request.POST.get('notes', '')
+        application.status = status
+        application.notes = notes
+        application.save()
+
+    # Return updated application button HTML
+    return render(request, 'jobs/partials/application_button.html', {
+        'job': job,
+        'has_applied': True,
+        'application': application
+    })

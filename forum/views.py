@@ -1,7 +1,13 @@
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import ListView, DetailView
+from django.shortcuts import render, get_object_or_404, redirect
+from django.views.generic import ListView, DetailView, CreateView
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
 from django.db.models import Q, Count
+from django.http import HttpResponse
+from django.urls import reverse_lazy
 from .models import ForumPost, Reply
+from .forms import ForumPostForm, ReplyForm
 
 
 class ForumListView(ListView):
@@ -56,4 +62,84 @@ class ForumPostDetailView(DetailView):
         context['page_title'] = f'{self.object.title} - Forum - engg.pk'
         context['meta_description'] = self.object.content[:155]
         context['replies'] = self.object.replies.select_related('author', 'author__profile')
+        context['reply_form'] = ReplyForm()
         return context
+
+
+class ForumPostCreateView(LoginRequiredMixin, CreateView):
+    """Create a new forum post"""
+    model = ForumPost
+    form_class = ForumPostForm
+    template_name = 'forum/create.html'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        messages.success(self.request, 'Your post has been created successfully!')
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_title'] = 'Create Post - Forum - engg.pk'
+        return context
+
+
+# HTMX Engagement Views
+@login_required
+def toggle_post_like(request, pk):
+    """Toggle like on a forum post (HTMX)"""
+    post = get_object_or_404(ForumPost, pk=pk)
+
+    if request.user in post.likes.all():
+        post.likes.remove(request.user)
+        liked = False
+    else:
+        post.likes.add(request.user)
+        liked = True
+
+    # Return updated like button HTML
+    return render(request, 'forum/partials/like_button.html', {
+        'post': post,
+        'liked': liked
+    })
+
+
+@login_required
+def toggle_reply_like(request, pk):
+    """Toggle like on a reply (HTMX)"""
+    reply = get_object_or_404(Reply, pk=pk)
+
+    if request.user in reply.likes.all():
+        reply.likes.remove(request.user)
+        liked = False
+    else:
+        reply.likes.add(request.user)
+        liked = True
+
+    # Return updated like button HTML
+    return render(request, 'forum/partials/reply_like_button.html', {
+        'reply': reply,
+        'liked': liked
+    })
+
+
+@login_required
+def create_reply(request, pk):
+    """Create a reply to a forum post (HTMX)"""
+    post = get_object_or_404(ForumPost, pk=pk)
+
+    if request.method == 'POST':
+        content = request.POST.get('content', '').strip()
+        if content:
+            reply = Reply.objects.create(
+                post=post,
+                author=request.user,
+                content=content
+            )
+            # Return the new reply HTML
+            return render(request, 'forum/partials/reply_item.html', {
+                'reply': reply
+            })
+        else:
+            return HttpResponse('<p class="text-red-500">Reply cannot be empty</p>', status=400)
+
+    return HttpResponse(status=400)
