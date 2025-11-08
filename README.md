@@ -69,18 +69,40 @@ To create a thriving community where Pakistani engineers can access curated know
 
 ## Technology Stack
 
-- **Frontend**: React 18 with TypeScript
-- **Styling**: Tailwind CSS
-- **Build Tool**: Vite
-- **Routing**: React Router v6
-- **Icons**: Lucide React
+**Why Django + HTMX?**
+
+We chose Django + HTMX over React for several important reasons:
+- **SEO-Friendly**: Server-side rendering means search engines can properly index our content (critical for discovering university reviews, scholarships, job postings)
+- **Performance**: Faster initial page loads, especially on slower connections common in Pakistan
+- **Simplicity**: One server handles everything - no complex frontend/backend split
+- **Built-in Features**: Django Admin for content management, authentication, and security out of the box
+- **Progressive Enhancement**: Works without JavaScript, degrades gracefully
+
+### Backend
+- **Django 5.x** - Python web framework with batteries included
+- **PostgreSQL/SQLite** - Database (SQLite for development, PostgreSQL for production)
+- **WhiteNoise** - Static file serving
+- **Gunicorn** - Production WSGI server
+
+### Frontend
+- **Django Templates** - Server-side rendering for optimal SEO
+- **HTMX** - Dynamic interactions without full page reloads (~14KB vs React's 140KB+)
+- **Tailwind CSS** - Utility-first CSS framework (via CDN)
+- **Alpine.js** - Lightweight JavaScript for complex UI interactions
+
+### Key Benefits
+- **Single Deployment**: One application to deploy and maintain
+- **Better SEO**: All pages rendered server-side
+- **Admin Panel**: Django Admin for content moderation
+- **Faster Initial Loads**: Critical for users on slower connections
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18 or higher
-- npm or yarn
+- Python 3.10 or higher
+- pip and virtualenv
+- PostgreSQL (for production) or SQLite (for development)
 
 ### Installation
 
@@ -90,42 +112,128 @@ git clone https://github.com/hassan-kamran/engg.pk.git
 cd engg.pk
 ```
 
-2. Install dependencies:
+2. Create and activate virtual environment:
 ```bash
-npm install
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-3. Start the development server:
+3. Install dependencies:
 ```bash
-npm run dev
+pip install -r requirements.txt
 ```
 
-4. Open your browser and navigate to `http://localhost:3000`
+4. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env and set your SECRET_KEY and other settings
+```
+
+5. Run migrations:
+```bash
+python manage.py migrate
+```
+
+6. Create a superuser (for admin access):
+```bash
+python manage.py createsuperuser
+```
+
+7. Start the development server:
+```bash
+python manage.py runserver
+```
+
+8. Open your browser and navigate to `http://localhost:8000`
+
+### Access Admin Panel
+
+- URL: `http://localhost:8000/admin/`
+- Login with the superuser credentials you created
 
 ### Build for Production
 
+1. Update settings for production (in `config/settings.py`):
+   - Set `DEBUG = False`
+   - Update `ALLOWED_HOSTS`
+   - Configure PostgreSQL database
+   - Set strong `SECRET_KEY`
+
+2. Collect static files:
 ```bash
-npm run build
+python manage.py collectstatic
 ```
 
-The built files will be in the `dist` directory.
+3. Run with Gunicorn:
+```bash
+gunicorn config.wsgi:application --bind 0.0.0.0:8000
+```
+
+### Deployment Options
+
+- **Railway** (recommended): Easy PostgreSQL integration
+- **Render**: Free tier available
+- **DigitalOcean App Platform**: Good for Pakistan region
+- **Heroku**: Simple deployment with add-ons
 
 ## Contributing
 
 We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 
+## Project Structure
+
+```
+engg.pk/
+├── config/              # Django project settings
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
+├── core/                # Core app (homepage, about, subjects)
+├── forum/               # Community forum
+├── universities/        # University program reviews
+├── careers/             # Career paths
+├── jobs/                # Job board
+├── scholarships/        # Scholarship database
+├── insights/            # Industry insights
+├── startups/            # Startup resources
+├── templates/           # Django templates
+│   ├── base.html
+│   ├── core/
+│   ├── forum/
+│   └── ...
+├── static/              # Static files (CSS, JS, images)
+├── manage.py
+└── requirements.txt
+```
+
 ## Future Enhancements
 
-- User authentication and profiles
-- Expert verification system
-- Advanced search and filtering
-- Real-time messaging
-- Mobile app
-- Backend API integration
-- Database integration (PostgreSQL/MongoDB)
+### Phase 1 (Immediate)
+- Complete all page templates
+- Add user authentication
+- Implement HTMX-powered search and filtering
+- Create data fixtures for sample content
+
+### Phase 2 (Short-term)
+- User profiles with expertise verification
+- Post creation and editing via HTMX
+- Like/upvote functionality
 - Email notifications
-- Content moderation tools
-- Analytics dashboard
+- Image uploads for profiles and posts
+
+### Phase 3 (Medium-term)
+- Advanced search with Elasticsearch
+- Real-time messaging (Django Channels)
+- Mobile-responsive PWA
+- Content moderation dashboard
+- Analytics and insights
+
+### Phase 4 (Long-term)
+- API for mobile apps
+- Recommendation engine
+- Newsletter system
+- Event management
+- Mentorship matching
 
 ## License
 
