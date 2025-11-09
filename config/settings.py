@@ -40,6 +40,19 @@ INSTALLED_APPS = [
     'scholarships',
     'insights',
     'startups',
+
+    # New feature apps
+    'mentorship',
+    'networking',
+    'projects',
+    'career_tools',
+    'marketplace',
+    'tools',
+    'community',
+    'academic',
+    'business',
+    'location',
+    'gamification',
 ]
 
 MIDDLEWARE = [
