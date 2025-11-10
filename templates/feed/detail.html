@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Back Button -->
+    <div class="mb-6">
+        <a href="{% url 'feed:list' %}" class="inline-flex items-center text-gray-600 hover:text-gray-900">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to Feed
+        </a>
+    </div>
+
+    <!-- Post Content -->
+    <div class="bg-white rounded-lg shadow-sm p-8 mb-6">
+        <!-- Author Info -->
+        <div class="flex items-start space-x-4 mb-6">
+            <div class="flex-shrink-0">
+                <div class="w-16 h-16 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white text-xl font-semibold">
+                    {{ post.author_name.0|upper }}
+                </div>
+            </div>
+            <div class="flex-1">
+                <div class="flex items-center space-x-2 mb-1">
+                    <span class="text-lg font-semibold text-gray-900">{{ post.author_name }}</span>
+                    {% if post.author_is_verified %}
+                    <svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                    </svg>
+                    {% endif %}
+                </div>
+                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <span>{{ post.created_at|naturaltime }}</span>
+                    <span>•</span>
+                    <span class="px-2 py-0.5 bg-gray-100 text-gray-700 text-xs rounded">
+                        {{ post.get_post_type_display }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post Title and Content -->
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ post.title }}</h1>
+
+        <!-- Topics/Tags -->
+        {% if post.topics %}
+        <div class="flex flex-wrap gap-2 mb-6">
+            {% for topic in post.topics %}
+            <span class="px-3 py-1 bg-primary-100 text-primary-700 text-sm rounded-full">
+                #{{ topic }}
+            </span>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="prose max-w-none mb-6">
+            <p class="text-gray-700 whitespace-pre-line text-lg leading-relaxed">{{ post.content }}</p>
+        </div>
+
+        <!-- External Link -->
+        {% if post.external_link %}
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+            <a href="{{ post.external_link }}" target="_blank" rel="noopener" class="flex items-center space-x-2 text-primary-600 hover:text-primary-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+                <span class="font-medium">View External Link</span>
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Engagement Stats -->
+        <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+            <div class="flex items-center space-x-6 text-gray-600">
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                    </svg>
+                    <span class="font-medium">{{ post.like_count }} likes</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+                    </svg>
+                    <span class="font-medium">{{ comments|length }} comments</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    <span class="font-medium">{{ post.views }} views</span>
+                </div>
+            </div>
+
+            <!-- Like Button -->
+            {% include 'feed/partials/like_button.html' with post=post liked=is_liked %}
+        </div>
+    </div>
+
+    <!-- Comments Section -->
+    <div class="bg-white rounded-lg shadow-sm p-8">
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Comments</h2>
+
+        <!-- Add Comment Form -->
+        {% if user.is_authenticated %}
+        <form hx-post="{% url 'feed:create_comment' post.pk %}" hx-target="#comments-list" hx-swap="afterbegin" class="mb-8">
+            {% csrf_token %}
+            <div class="flex space-x-3">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        {{ user.username.0|upper }}
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <textarea
+                        name="content"
+                        rows="3"
+                        placeholder="Share your thoughts..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        required
+                    ></textarea>
+                    <div class="mt-2">
+                        <button type="submit" class="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                            Post Comment
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        {% else %}
+        <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8 text-center">
+            <p class="text-gray-600 mb-3">Please log in to comment</p>
+            <a href="{% url 'core:login' %}" class="inline-block px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
+                Log In
+            </a>
+        </div>
+        {% endif %}
+
+        <!-- Comments List -->
+        <div id="comments-list" class="space-y-6">
+            {% for comment in comments %}
+            <div class="flex space-x-3 py-4 border-b border-gray-200">
+                <div class="flex-shrink-0">
+                    <div class="w-10 h-10 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        {{ comment.author.first_name.0|default:comment.author.username.0|upper }}
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <div class="flex items-center space-x-2 mb-1">
+                        <span class="font-semibold text-gray-900">{{ comment.author.get_full_name|default:comment.author.username }}</span>
+                        <span class="text-sm text-gray-500">{{ comment.created_at|naturaltime }}</span>
+                    </div>
+                    <p class="text-gray-700 mb-2">{{ comment.content }}</p>
+                    <button
+                        hx-post="{% url 'feed:toggle_comment_like' comment.pk %}"
+                        hx-swap="outerHTML"
+                        class="inline-flex items-center space-x-1 text-sm {% if request.user in comment.likes.all %}text-primary-600{% else %}text-gray-500 hover:text-gray-700{% endif %}"
+                    >
+                        <svg class="w-4 h-4" fill="{% if request.user in comment.likes.all %}currentColor{% else %}none{% endif %}" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"></path>
+                        </svg>
+                        <span>{{ comment.like_count }}</span>
+                    </button>
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-gray-500 text-center py-8">No comments yet. Be the first to comment!</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
