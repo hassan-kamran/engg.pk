@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'business',
     'location',
     'gamification',
+    'feed',
 ]
 
 MIDDLEWARE = [
