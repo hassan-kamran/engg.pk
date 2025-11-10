@@ -1,0 +1,26 @@
+<div class="border-l-2 border-green-200 pl-4 py-3">
+    <div class="flex items-start gap-3">
+        <div class="flex-shrink-0">
+            {% if reply.author.profile.avatar %}
+                <img src="{{ reply.author.profile.avatar.url }}" alt="{{ reply.author.username }}" class="w-10 h-10 rounded-full">
+            {% else %}
+                <div class="w-10 h-10 rounded-full bg-green-600 flex items-center justify-center text-white font-bold">
+                    {{ reply.author.username.0|upper }}
+                </div>
+            {% endif %}
+        </div>
+        <div class="flex-1">
+            <div class="flex items-center gap-2 text-sm text-gray-600 mb-1">
+                <a href="{% url 'core:profile' reply.author.username %}" class="font-semibold text-green-600 hover:underline">
+                    {{ reply.author.get_full_name|default:reply.author.username }}
+                </a>
+                <span>•</span>
+                <span>{{ reply.created_at|timesince }} ago</span>
+            </div>
+            <p class="text-gray-700">{{ reply.content }}</p>
+            <div class="mt-2">
+                {% include 'forum/partials/reply_like_button.html' with reply=reply liked=False %}
+            </div>
+        </div>
+    </div>
+</div>

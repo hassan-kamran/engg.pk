@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login - engg.pk{% endblock %}
+
+{% block content %}
+<div class="max-w-md mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <h1 class="text-3xl font-bold text-green-700 mb-6">Login</h1>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+        <button type="submit" class="w-full bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition">
+            Login
+        </button>
+    </form>
+
+    <div class="mt-6 text-center text-gray-600">
+        <p>Don't have an account? <a href="{% url 'core:register' %}" class="text-green-600 hover:underline">Register here</a></p>
+    </div>
+</div>
+{% endblock %}
