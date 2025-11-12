@@ -12,10 +12,10 @@ class UserProfile(models.Model):
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='student', db_index=True)
     expertise = models.JSONField(default=list, blank=True)  # List of expertise areas
     affiliation = models.CharField(max_length=200, blank=True)
-    verified = models.BooleanField(default=False)
+    verified = models.BooleanField(default=False, db_index=True)
     bio = models.TextField(blank=True)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

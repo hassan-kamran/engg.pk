@@ -11,7 +11,7 @@ class ThoughtLeader(models.Model):
     organization = models.CharField(max_length=200, blank=True)
     bio = models.TextField()
     expertise_areas = models.JSONField(default=list, help_text="List of expertise areas")
-    verified = models.BooleanField(default=False)
+    verified = models.BooleanField(default=False, db_index=True)
     follower_count = models.PositiveIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -37,12 +37,12 @@ class ProfessionalBody(models.Model):
 
     name = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=220, unique=True)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, db_index=True)
     description = models.TextField()
     website = models.URLField(blank=True)
     logo = models.ImageField(upload_to='organizations/', blank=True, null=True)
 
-    verified = models.BooleanField(default=False)
+    verified = models.BooleanField(default=False, db_index=True)
     follower_count = models.PositiveIntegerField(default=0)
 
     # Admins who can post on behalf of the organization

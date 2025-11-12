@@ -113,10 +113,10 @@ class UserProfileView(DetailView):
         user = self.get_object()
         context['page_title'] = f'{user.get_full_name() or user.username} - Profile'
         context['profile'] = user.profile
-        # Get user's contributions
-        context['forum_posts'] = user.forum_posts.all()[:5]
-        context['insights'] = user.insights.all()[:5]
-        context['program_reviews'] = user.program_reviews.all()[:5]
+        # Get user's contributions with optimized queries
+        context['forum_posts'] = user.forum_posts.select_related('author', 'author__profile').all()[:5]
+        context['insights'] = user.insights.select_related('author', 'author__profile').all()[:5]
+        context['program_reviews'] = user.program_reviews.select_related('author', 'author__profile').all()[:5]
         return context
 
 

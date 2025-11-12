@@ -29,7 +29,7 @@ class Job(models.Model):
     requirements = models.JSONField(default=list)
     salary = models.CharField(max_length=100, blank=True)
     application_url = models.URLField()
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, db_index=True)
     posted_date = models.DateField(auto_now_add=True)
 
     class Meta:

@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'location',
     'gamification',
     'feed',
+    'companies',
 ]
 
 MIDDLEWARE = [

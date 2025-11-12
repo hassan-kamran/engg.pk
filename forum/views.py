@@ -3,8 +3,8 @@ from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.db.models import Q, Count
-from django.http import HttpResponse
+from django.db.models import Q, Count, F
+from django.http import HttpResponse, HttpResponseNotAllowed
 from django.urls import reverse_lazy
 from .models import ForumPost, Reply
 from .forms import ForumPostForm, ReplyForm
@@ -52,9 +52,10 @@ class ForumPostDetailView(DetailView):
 
     def get_object(self):
         obj = super().get_object()
-        # Increment views
-        obj.views += 1
+        # Increment views using F() to avoid race conditions
+        obj.views = F('views') + 1
         obj.save(update_fields=['views'])
+        obj.refresh_from_db()  # Refresh to get the actual value
         return obj
 
     def get_context_data(self, **kwargs):
@@ -87,6 +88,9 @@ class ForumPostCreateView(LoginRequiredMixin, CreateView):
 @login_required
 def toggle_post_like(request, pk):
     """Toggle like on a forum post (HTMX)"""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
     post = get_object_or_404(ForumPost, pk=pk)
 
     if request.user in post.likes.all():
@@ -106,6 +110,9 @@ def toggle_post_like(request, pk):
 @login_required
 def toggle_reply_like(request, pk):
     """Toggle like on a reply (HTMX)"""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
     reply = get_object_or_404(Reply, pk=pk)
 
     if request.user in reply.likes.all():

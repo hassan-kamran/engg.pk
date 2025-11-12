@@ -147,7 +147,20 @@ class SkillAssessment(models.Model):
 class InterviewExperience(models.Model):
     """Share interview experiences"""
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='interview_experiences')
-    company = models.CharField(max_length=200)
+    company = models.ForeignKey(
+        'companies.Company',
+        on_delete=models.CASCADE,
+        related_name='interview_experiences',
+        null=True,
+        blank=True,
+        verbose_name="Company"
+    )
+    company_name = models.CharField(
+        max_length=200,
+        blank=True,
+        verbose_name="Company Name (if not in system)",
+        help_text="Enter company name if not found in the company list"
+    )
     position = models.CharField(max_length=200)
     discipline = models.CharField(
         max_length=50,
@@ -207,7 +220,12 @@ class InterviewExperience(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.company} - {self.position} ({self.author.username})"
+        company_display = self.company.name if self.company else self.company_name
+        return f"{company_display} - {self.position} ({self.author.username})"
+
+    def get_company_display(self):
+        """Return the company name from either the ForeignKey or the text field."""
+        return self.company.name if self.company else self.company_name
 
 
 class StudyGroup(models.Model):

@@ -1,0 +1,486 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+        <a href="{% url 'companies:list' %}" class="text-primary-600 hover:text-primary-800">Companies</a>
+        <span class="mx-2 text-gray-400">/</span>
+        <span class="text-gray-600">{{ company.name }}</span>
+    </nav>
+
+    <!-- Company Header -->
+    <div class="bg-white rounded-lg shadow-sm p-8 mb-6">
+        <div class="flex items-start space-x-6 mb-6">
+            <!-- Company Logo -->
+            <div class="flex-shrink-0">
+                {% if company.logo %}
+                <img src="{{ company.logo.url }}" alt="{{ company.name }}" class="w-24 h-24 rounded-lg object-cover">
+                {% else %}
+                <div class="w-24 h-24 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
+                    <span class="text-white font-bold text-4xl">{{ company.name.0 }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Company Info -->
+            <div class="flex-1">
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">{{ company.name }}</h1>
+
+                <!-- Rating -->
+                {% if company.average_rating %}
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="flex items-center">
+                        <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                        </svg>
+                        <span class="ml-2 text-2xl font-bold text-gray-900">{{ company.average_rating|floatformat:1 }}</span>
+                    </div>
+                    <span class="text-gray-600">{{ company.review_count }} reviews</span>
+                </div>
+                {% endif %}
+
+                <!-- Company Meta -->
+                <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>{{ company.get_industry_display }}</span>
+                    </div>
+                    {% if company.location %}
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                        <span>{{ company.location }}</span>
+                    </div>
+                    {% endif %}
+                    {% if company.employee_count %}
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                        <span>{{ company.employee_count }} employees</span>
+                    </div>
+                    {% endif %}
+                    {% if company.founded_year %}
+                    <div class="flex items-center space-x-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                        </svg>
+                        <span>Founded {{ company.founded_year }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Website -->
+                {% if company.website %}
+                <div class="mt-4">
+                    <a href="{{ company.website }}" target="_blank" class="text-primary-600 hover:text-primary-800 text-sm flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                        </svg>
+                        <span>{{ company.website }}</span>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="bg-white rounded-lg shadow-sm mb-6" x-data="{ activeTab: '{{ active_tab|default:'overview' }}' }">
+        <div class="border-b border-gray-200">
+            <nav class="flex -mb-px overflow-x-auto">
+                <button
+                    @click="activeTab = 'overview'"
+                    :class="activeTab === 'overview' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors"
+                >
+                    Overview
+                </button>
+                <button
+                    @click="activeTab = 'reviews'"
+                    :class="activeTab === 'reviews' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors"
+                >
+                    Reviews ({{ company.review_count }})
+                </button>
+                <button
+                    @click="activeTab = 'salaries'"
+                    :class="activeTab === 'salaries' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors"
+                >
+                    Salaries ({{ company.salary_count }})
+                </button>
+                <button
+                    @click="activeTab = 'interviews'"
+                    :class="activeTab === 'interviews' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors"
+                >
+                    Interviews ({{ company.interview_count }})
+                </button>
+                <button
+                    @click="activeTab = 'photos'"
+                    :class="activeTab === 'photos' ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm transition-colors"
+                >
+                    Photos ({{ company.photo_count }})
+                </button>
+            </nav>
+        </div>
+
+        <!-- Tab Content -->
+        <div class="p-6">
+            <!-- Overview Tab -->
+            <div x-show="activeTab === 'overview'" x-cloak>
+                <div class="space-y-6">
+                    <!-- Description -->
+                    {% if company.description %}
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">About {{ company.name }}</h2>
+                        <div class="prose max-w-none text-gray-700">
+                            {{ company.description|linebreaks }}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Benefits -->
+                    {% if company.benefits %}
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">Benefits & Perks</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {% for benefit in company.benefits %}
+                            <div class="flex items-start space-x-3 bg-green-50 p-3 rounded-lg">
+                                <svg class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="text-gray-700">{{ benefit }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- CEO Info -->
+                    {% if company.ceo_name %}
+                    <div>
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">Leadership</h2>
+                        <div class="bg-gray-50 rounded-lg p-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
+                                    <span class="text-white font-bold text-xl">{{ company.ceo_name.0 }}</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-gray-900">{{ company.ceo_name }}</h3>
+                                    <p class="text-sm text-gray-600">Chief Executive Officer</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Reviews Tab -->
+            <div x-show="activeTab === 'reviews'" x-cloak>
+                <!-- CTA for logged-in users -->
+                {% if user.is_authenticated %}
+                <div class="mb-6">
+                    <a href="{% url 'companies:review_create' company.slug %}" class="inline-flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Write a Review</span>
+                    </a>
+                </div>
+                {% else %}
+                <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-blue-800"><a href="{% url 'core:login' %}" class="font-semibold hover:underline">Login</a> to write a review</p>
+                </div>
+                {% endif %}
+
+                <!-- Ratings Breakdown -->
+                {% if company.average_rating %}
+                <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Ratings Breakdown</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div class="text-center">
+                            <div class="text-sm font-medium text-gray-600 mb-1">Work-Life Balance</div>
+                            <div class="text-2xl font-bold text-gray-900">{{ company.avg_work_life_balance|floatformat:1 }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-sm font-medium text-gray-600 mb-1">Culture & Values</div>
+                            <div class="text-2xl font-bold text-gray-900">{{ company.avg_culture|floatformat:1 }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-sm font-medium text-gray-600 mb-1">Career Growth</div>
+                            <div class="text-2xl font-bold text-gray-900">{{ company.avg_career_growth|floatformat:1 }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-sm font-medium text-gray-600 mb-1">Compensation</div>
+                            <div class="text-2xl font-bold text-gray-900">{{ company.avg_compensation|floatformat:1 }}</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-sm font-medium text-gray-600 mb-1">Management</div>
+                            <div class="text-2xl font-bold text-gray-900">{{ company.avg_management|floatformat:1 }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Reviews List -->
+                <div class="space-y-4">
+                    {% for review in reviews %}
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <div class="flex items-center">
+                                        <svg class="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                        </svg>
+                                        <span class="ml-1 font-semibold text-gray-900">{{ review.overall_rating|floatformat:1 }}</span>
+                                    </div>
+                                    <span class="text-gray-600">-</span>
+                                    <span class="font-medium text-gray-900">{{ review.job_title }}</span>
+                                </div>
+                                <p class="text-sm text-gray-600">{{ review.created_at|naturaltime }}</p>
+                            </div>
+                            {% if review.is_current_employee %}
+                            <span class="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">Current Employee</span>
+                            {% else %}
+                            <span class="px-3 py-1 bg-gray-200 text-gray-700 text-sm font-medium rounded-full">Former Employee</span>
+                            {% endif %}
+                        </div>
+
+                        {% if review.title %}
+                        <h4 class="font-semibold text-gray-900 mb-2">{{ review.title }}</h4>
+                        {% endif %}
+
+                        <!-- Pros & Cons -->
+                        {% if review.pros %}
+                        <div class="mb-3">
+                            <h5 class="text-sm font-semibold text-green-700 mb-1">Pros:</h5>
+                            <p class="text-gray-700">{{ review.pros }}</p>
+                        </div>
+                        {% endif %}
+                        {% if review.cons %}
+                        <div class="mb-3">
+                            <h5 class="text-sm font-semibold text-red-700 mb-1">Cons:</h5>
+                            <p class="text-gray-700">{{ review.cons }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Recommendation -->
+                        {% if review.would_recommend %}
+                        <div class="flex items-center space-x-2 text-sm text-green-700 mt-3 pt-3 border-t border-gray-200">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span>Recommends working here</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="bg-gray-50 rounded-lg p-8 text-center">
+                        <p class="text-gray-600">No reviews yet. Be the first to review {{ company.name }}!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Salaries Tab -->
+            <div x-show="activeTab === 'salaries'" x-cloak>
+                <!-- CTA for logged-in users -->
+                {% if user.is_authenticated %}
+                <div class="mb-6">
+                    <a href="{% url 'companies:salary_create' company.slug %}" class="inline-flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Add Salary Information</span>
+                    </a>
+                </div>
+                {% else %}
+                <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-blue-800"><a href="{% url 'core:login' %}" class="font-semibold hover:underline">Login</a> to add salary information</p>
+                </div>
+                {% endif %}
+
+                <!-- Salaries List -->
+                <div class="space-y-4">
+                    {% for salary in salaries %}
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 text-lg mb-1">{{ salary.job_title }}</h4>
+                                <p class="text-sm text-gray-600">{{ salary.created_at|naturaltime }}</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-2xl font-bold text-primary-600">PKR {{ salary.salary_amount|floatformat:0|intcomma }}</div>
+                                <p class="text-sm text-gray-600">{{ salary.get_salary_type_display }}</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                            {% if salary.years_of_experience %}
+                            <div>
+                                <span class="font-medium">Experience:</span> {{ salary.years_of_experience }} years
+                            </div>
+                            {% endif %}
+                            {% if salary.location %}
+                            <div>
+                                <span class="font-medium">Location:</span> {{ salary.location }}
+                            </div>
+                            {% endif %}
+                            {% if salary.employment_type %}
+                            <div>
+                                <span class="font-medium">Type:</span> {{ salary.get_employment_type_display }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if salary.additional_benefits %}
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <p class="text-sm font-medium text-gray-700 mb-2">Additional Benefits:</p>
+                            <p class="text-sm text-gray-600">{{ salary.additional_benefits }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="bg-gray-50 rounded-lg p-8 text-center">
+                        <p class="text-gray-600">No salary information yet. Be the first to contribute!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Interviews Tab -->
+            <div x-show="activeTab === 'interviews'" x-cloak>
+                <!-- CTA for logged-in users -->
+                {% if user.is_authenticated %}
+                <div class="mb-6">
+                    <a href="{% url 'companies:interview_create' company.slug %}" class="inline-flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Share Interview Experience</span>
+                    </a>
+                </div>
+                {% else %}
+                <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-blue-800"><a href="{% url 'core:login' %}" class="font-semibold hover:underline">Login</a> to share your interview experience</p>
+                </div>
+                {% endif %}
+
+                <!-- Interviews List -->
+                <div class="space-y-4">
+                    {% for interview in interviews %}
+                    <div class="bg-gray-50 rounded-lg p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h4 class="font-semibold text-gray-900 text-lg mb-1">{{ interview.job_title }}</h4>
+                                <p class="text-sm text-gray-600">{{ interview.created_at|naturaltime }}</p>
+                            </div>
+                            {% if interview.got_offer %}
+                            <span class="px-3 py-1 bg-green-100 text-green-700 text-sm font-medium rounded-full">Offer Received</span>
+                            {% else %}
+                            <span class="px-3 py-1 bg-gray-200 text-gray-700 text-sm font-medium rounded-full">No Offer</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                {% if interview.difficulty %}
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-medium">Difficulty:</span>
+                                    <span class="px-2 py-1 bg-gray-200 text-gray-700 rounded">{{ interview.get_difficulty_display }}</span>
+                                </div>
+                                {% endif %}
+                                {% if interview.overall_experience %}
+                                <div class="flex items-center space-x-2">
+                                    <span class="font-medium">Experience:</span>
+                                    <span class="px-2 py-1 bg-gray-200 text-gray-700 rounded">{{ interview.get_overall_experience_display }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        {% if interview.process_description %}
+                        <div class="mb-3">
+                            <h5 class="text-sm font-semibold text-gray-900 mb-2">Interview Process:</h5>
+                            <p class="text-gray-700">{{ interview.process_description }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if interview.questions_asked %}
+                        <div class="mb-3">
+                            <h5 class="text-sm font-semibold text-gray-900 mb-2">Questions Asked:</h5>
+                            <p class="text-gray-700">{{ interview.questions_asked }}</p>
+                        </div>
+                        {% endif %}
+
+                        {% if interview.preparation_tips %}
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <h5 class="text-sm font-semibold text-gray-900 mb-2">Preparation Tips:</h5>
+                            <p class="text-gray-700">{{ interview.preparation_tips }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="bg-gray-50 rounded-lg p-8 text-center">
+                        <p class="text-gray-600">No interview experiences yet. Share yours to help others!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Photos Tab -->
+            <div x-show="activeTab === 'photos'" x-cloak>
+                <!-- CTA for logged-in users -->
+                {% if user.is_authenticated %}
+                <div class="mb-6">
+                    <a href="{% url 'companies:photo_upload' company.slug %}" class="inline-flex items-center space-x-2 px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>Upload Photos</span>
+                    </a>
+                </div>
+                {% else %}
+                <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <p class="text-blue-800"><a href="{% url 'core:login' %}" class="font-semibold hover:underline">Login</a> to upload photos</p>
+                </div>
+                {% endif %}
+
+                <!-- Photos Grid -->
+                {% if photos %}
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {% for photo in photos %}
+                    <div class="relative group">
+                        <img src="{{ photo.image.url }}" alt="{{ photo.caption }}" class="w-full h-48 object-cover rounded-lg">
+                        {% if photo.caption %}
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-300 rounded-lg flex items-end p-3">
+                            <p class="text-white text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">{{ photo.caption }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="bg-gray-50 rounded-lg p-8 text-center">
+                    <svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p class="text-gray-600">No photos yet. Upload photos to showcase the workplace!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

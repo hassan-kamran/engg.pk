@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.views.generic import ListView, DetailView
+from django.db.models import F
 from .models import IndustryInsight
 
 
@@ -26,9 +27,10 @@ class InsightDetailView(DetailView):
 
     def get_object(self):
         obj = super().get_object()
-        # Increment views
-        obj.views += 1
+        # Increment views using F() to avoid race conditions
+        obj.views = F('views') + 1
         obj.save(update_fields=['views'])
+        obj.refresh_from_db()  # Refresh to get the actual value
         return obj
 
     def get_context_data(self, **kwargs):

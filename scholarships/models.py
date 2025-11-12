@@ -27,7 +27,7 @@ class Scholarship(models.Model):
     eligibility = models.JSONField(default=list)
     application_url = models.URLField()
     funded = models.CharField(max_length=20, choices=FUNDING_CHOICES)
-    is_active = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

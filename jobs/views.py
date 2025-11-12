@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views.generic import ListView, DetailView
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotAllowed
 from .models import Job, SavedJob, JobApplication
 
 
@@ -66,6 +66,9 @@ class JobDetailView(DetailView):
 @login_required
 def toggle_save_job(request, pk):
     """Toggle save on a job (HTMX)"""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
     job = get_object_or_404(Job, pk=pk)
 
     saved_job = SavedJob.objects.filter(user=request.user, job=job).first()

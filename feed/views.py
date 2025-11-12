@@ -3,8 +3,8 @@ from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.db.models import Q, Count, Exists, OuterRef
-from django.http import HttpResponse
+from django.db.models import Q, Count, Exists, OuterRef, F
+from django.http import HttpResponse, HttpResponseNotAllowed
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from .models import (
@@ -105,9 +105,10 @@ class FeedPostDetailView(LoginRequiredMixin, DetailView):
 
     def get_object(self):
         obj = super().get_object()
-        # Increment views
-        obj.views += 1
+        # Increment views using F() to avoid race conditions
+        obj.views = F('views') + 1
         obj.save(update_fields=['views'])
+        obj.refresh_from_db()  # Refresh to get the actual value
         return obj
 
     def get_context_data(self, **kwargs):
@@ -248,6 +249,9 @@ class ProfessionalBodyListView(LoginRequiredMixin, ListView):
 @login_required
 def toggle_post_like(request, pk):
     """Toggle like on a feed post (HTMX)"""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
     post = get_object_or_404(FeedPost, pk=pk)
 
     if request.user in post.likes.all():
@@ -266,6 +270,9 @@ def toggle_post_like(request, pk):
 @login_required
 def toggle_comment_like(request, pk):
     """Toggle like on a comment (HTMX)"""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
     comment = get_object_or_404(Comment, pk=pk)
 
     if request.user in comment.likes.all():
@@ -306,6 +313,9 @@ def create_comment(request, pk):
 @login_required
 def toggle_user_subscription(request, pk):
     """Follow/unfollow a thought leader (HTMX)"""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
     thought_leader = get_object_or_404(ThoughtLeader, pk=pk)
 
     subscription = UserSubscription.objects.filter(
@@ -315,17 +325,21 @@ def toggle_user_subscription(request, pk):
 
     if subscription:
         subscription.delete()
-        thought_leader.follower_count = max(0, thought_leader.follower_count - 1)
+        # Use F() to avoid race conditions
+        thought_leader.follower_count = F('follower_count') - 1
+        thought_leader.save(update_fields=['follower_count'])
+        thought_leader.refresh_from_db()
         is_subscribed = False
     else:
         UserSubscription.objects.create(
             subscriber=request.user,
             thought_leader=thought_leader
         )
-        thought_leader.follower_count += 1
+        # Use F() to avoid race conditions
+        thought_leader.follower_count = F('follower_count') + 1
+        thought_leader.save(update_fields=['follower_count'])
+        thought_leader.refresh_from_db()
         is_subscribed = True
-
-    thought_leader.save(update_fields=['follower_count'])
 
     return render(request, 'feed/partials/subscribe_button.html', {
         'thought_leader': thought_leader,
@@ -336,6 +350,9 @@ def toggle_user_subscription(request, pk):
 @login_required
 def toggle_organization_subscription(request, pk):
     """Follow/unfollow a professional body (HTMX)"""
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
     organization = get_object_or_404(ProfessionalBody, pk=pk)
 
     subscription = OrganizationSubscription.objects.filter(
@@ -345,17 +362,21 @@ def toggle_organization_subscription(request, pk):
 
     if subscription:
         subscription.delete()
-        organization.follower_count = max(0, organization.follower_count - 1)
+        # Use F() to avoid race conditions
+        organization.follower_count = F('follower_count') - 1
+        organization.save(update_fields=['follower_count'])
+        organization.refresh_from_db()
         is_subscribed = False
     else:
         OrganizationSubscription.objects.create(
             subscriber=request.user,
             organization=organization
         )
-        organization.follower_count += 1
+        # Use F() to avoid race conditions
+        organization.follower_count = F('follower_count') + 1
+        organization.save(update_fields=['follower_count'])
+        organization.refresh_from_db()
         is_subscribed = True
-
-    organization.save(update_fields=['follower_count'])
 
     return render(request, 'feed/partials/organization_subscribe_button.html', {
         'organization': organization,
