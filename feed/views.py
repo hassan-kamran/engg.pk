@@ -15,7 +15,7 @@ from .forms import FeedPostForm, CommentForm
 
 
 class FeedListView(LoginRequiredMixin, ListView):
-    """Main feed with infinite scroll"""
+    """Main feed with infinite scroll - shows posts from followed users/organizations"""
     model = FeedPost
     template_name = 'feed/list.html'
     context_object_name = 'posts'
@@ -24,50 +24,48 @@ class FeedListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
 
-        # Get posts from subscribed thought leaders
-        subscribed_users = UserSubscription.objects.filter(
+        # Get users that the current user follows (thought leaders)
+        subscribed_thought_leaders = UserSubscription.objects.filter(
             subscriber=user
         ).values_list('thought_leader__user', flat=True)
 
-        # Get posts from subscribed organizations
-        subscribed_orgs = OrganizationSubscription.objects.filter(
+        # Get organizations that the current user follows
+        subscribed_organizations = OrganizationSubscription.objects.filter(
             subscriber=user
         ).values_list('organization', flat=True)
 
-        # Get subscribed topics
+        # Get topics the user subscribed to
         subscribed_topics = TopicSubscription.objects.filter(
             subscriber=user
         ).values_list('topic', flat=True)
 
-        # Build query
+        # Build query - show posts from followed users, organizations, or topics
+        q_objects = Q()
+
+        if subscribed_thought_leaders:
+            q_objects |= Q(author_user__in=subscribed_thought_leaders)
+
+        if subscribed_organizations:
+            q_objects |= Q(author_organization__in=subscribed_organizations)
+
+        if subscribed_topics:
+            # Posts that contain any of the subscribed topics
+            for topic in subscribed_topics:
+                q_objects |= Q(topics__contains=topic)
+
+        # Base queryset with optimization
         queryset = FeedPost.objects.select_related(
             'author_user', 'author_organization'
         ).prefetch_related('likes', 'comments').annotate(
-            comment_count=Count('comments'),
-            is_liked=Exists(
-                FeedPost.likes.through.objects.filter(
-                    feedpost_id=OuterRef('pk'),
-                    user_id=user.id
-                )
-            )
+            comment_count=Count('comments')
         )
 
-        # Filter by subscriptions if user has any
-        if subscribed_users or subscribed_orgs or subscribed_topics:
-            q_objects = Q()
-
-            if subscribed_users:
-                q_objects |= Q(author_user__in=subscribed_users)
-
-            if subscribed_orgs:
-                q_objects |= Q(author_organization__in=subscribed_orgs)
-
-            if subscribed_topics:
-                # Match posts that have any of the subscribed topics
-                for topic in subscribed_topics:
-                    q_objects |= Q(topics__contains=[topic])
-
+        # Apply subscription filter if user follows anything
+        if subscribed_thought_leaders or subscribed_organizations or subscribed_topics:
             queryset = queryset.filter(q_objects)
+
+        # If user doesn't follow anyone yet, show all posts (discovery mode)
+        # This ensures new users see content immediately
 
         # Search
         search = self.request.GET.get('search', '')
@@ -81,23 +79,20 @@ class FeedListView(LoginRequiredMixin, ListView):
         if post_type:
             queryset = queryset.filter(post_type=post_type)
 
-        return queryset.distinct()
+        return queryset.distinct().order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_title'] = 'Professional Feed - engg.pk'
-        context['meta_description'] = 'Stay updated with insights from thought leaders and professional organizations'
+        context['page_title'] = 'Feed - engg.pk'
+        context['meta_description'] = 'Browse posts from the engineering community'
         context['post_types'] = FeedPost.POST_TYPE_CHOICES
         context['selected_type'] = self.request.GET.get('type', '')
         context['search_query'] = self.request.GET.get('search', '')
 
-        # Get user's subscription counts
+        # Add subscription stats for sidebar
         user = self.request.user
-        context['subscription_counts'] = {
-            'thought_leaders': UserSubscription.objects.filter(subscriber=user).count(),
-            'organizations': OrganizationSubscription.objects.filter(subscriber=user).count(),
-            'topics': TopicSubscription.objects.filter(subscriber=user).count(),
-        }
+        context['following_count'] = UserSubscription.objects.filter(subscriber=user).count()
+        context['organizations_count'] = OrganizationSubscription.objects.filter(subscriber=user).count()
 
         return context
 
