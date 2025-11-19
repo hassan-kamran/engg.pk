@@ -169,8 +169,13 @@ class FeedPost(models.Model):
         return f"{author}: {self.title[:50]}"
 
     @property
-    def author_name(self):
-        """Get the author name regardless of type"""
+    def author_name(self) -> str:
+        """
+        Get the author name regardless of type.
+
+        Returns:
+            str: Full name or username for user authors, name for organization authors
+        """
         if self.author_user:
             return self.author_user.get_full_name() or self.author_user.username
         elif self.author_organization:
@@ -178,16 +183,29 @@ class FeedPost(models.Model):
         return "Unknown"
 
     @property
-    def author_is_verified(self):
-        """Check if author is verified"""
+    def author_is_verified(self) -> bool:
+        """
+        Check if author is verified.
+
+        Returns:
+            bool: True if author is a verified thought leader or organization
+        """
         if self.author_user and hasattr(self.author_user, 'thought_leader_profile'):
             return self.author_user.thought_leader_profile.verified
         elif self.author_organization:
             return self.author_organization.verified
         return False
 
-    @property
-    def like_count(self):
+    def get_like_count(self) -> int:
+        """
+        Get the number of likes for this post.
+
+        Note: This method is deprecated. Use annotate(like_count=Count('likes'))
+        in your queryset instead to avoid N+1 queries.
+
+        Returns:
+            int: Number of likes
+        """
         return self.likes.count()
 
 
@@ -207,6 +225,14 @@ class Comment(models.Model):
     def __str__(self):
         return f"Comment by {self.author.username} on {self.post.title[:30]}"
 
-    @property
-    def like_count(self):
+    def get_like_count(self) -> int:
+        """
+        Get the number of likes for this comment.
+
+        Note: This method is deprecated. Use annotate(like_count=Count('likes'))
+        in your queryset instead to avoid N+1 queries.
+
+        Returns:
+            int: Number of likes
+        """
         return self.likes.count()

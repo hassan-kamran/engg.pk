@@ -1,17 +1,23 @@
+from typing import Any, Dict
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views.generic import ListView, DetailView, CreateView
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.db.models import Q, Count, Exists, OuterRef
-from django.http import HttpResponse
+from django.db.models import Q, Count, Exists, OuterRef, QuerySet
+from django.http import HttpResponse, HttpRequest
 from django.urls import reverse_lazy
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError, PermissionDenied
+from core.utils import toggle_like, validate_text_length
 from .models import (
     FeedPost, Comment, ThoughtLeader, ProfessionalBody,
     UserSubscription, OrganizationSubscription, TopicSubscription
 )
 from .forms import FeedPostForm, CommentForm
+
+# Constants
+MAX_COMMENT_LENGTH = 5000
 
 
 class FeedListView(LoginRequiredMixin, ListView):
@@ -21,43 +27,45 @@ class FeedListView(LoginRequiredMixin, ListView):
     context_object_name = 'posts'
     paginate_by = 10  # Load 10 posts at a time for infinite scroll
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[FeedPost]:
+        """
+        Get the feed posts queryset with subscription filtering.
+
+        Returns posts from followed users, organizations, or topics.
+        If user follows nothing, shows all posts (discovery mode).
+
+        Returns:
+            QuerySet[FeedPost]: Optimized queryset with annotations
+        """
         user = self.request.user
 
-        # Get users that the current user follows (thought leaders)
-        subscribed_thought_leaders = UserSubscription.objects.filter(
-            subscriber=user
-        ).values_list('thought_leader__user', flat=True)
-
-        # Get organizations that the current user follows
-        subscribed_organizations = OrganizationSubscription.objects.filter(
-            subscriber=user
-        ).values_list('organization', flat=True)
-
-        # Get topics the user subscribed to
-        subscribed_topics = TopicSubscription.objects.filter(
-            subscriber=user
-        ).values_list('topic', flat=True)
+        # Get subscriptions (optimized to reduce queries)
+        subscribed_thought_leaders = list(
+            UserSubscription.objects.filter(subscriber=user)
+            .values_list('thought_leader__user', flat=True)
+        )
+        subscribed_organizations = list(
+            OrganizationSubscription.objects.filter(subscriber=user)
+            .values_list('organization', flat=True)
+        )
+        subscribed_topics = list(
+            TopicSubscription.objects.filter(subscriber=user)
+            .values_list('topic', flat=True)
+        )
 
         # Build query - show posts from followed users, organizations, or topics
-        q_objects = Q()
+        q_objects = self._build_subscription_query(
+            subscribed_thought_leaders,
+            subscribed_organizations,
+            subscribed_topics
+        )
 
-        if subscribed_thought_leaders:
-            q_objects |= Q(author_user__in=subscribed_thought_leaders)
-
-        if subscribed_organizations:
-            q_objects |= Q(author_organization__in=subscribed_organizations)
-
-        if subscribed_topics:
-            # Posts that contain any of the subscribed topics
-            for topic in subscribed_topics:
-                q_objects |= Q(topics__contains=topic)
-
-        # Base queryset with optimization
+        # Base queryset with optimization - annotate like_count to avoid N+1
         queryset = FeedPost.objects.select_related(
             'author_user', 'author_organization'
-        ).prefetch_related('likes', 'comments').annotate(
-            comment_count=Count('comments')
+        ).annotate(
+            like_count=Count('likes', distinct=True),
+            comment_count=Count('comments', distinct=True)
         )
 
         # Apply subscription filter if user follows anything
@@ -67,19 +75,80 @@ class FeedListView(LoginRequiredMixin, ListView):
         # If user doesn't follow anyone yet, show all posts (discovery mode)
         # This ensures new users see content immediately
 
-        # Search
-        search = self.request.GET.get('search', '')
+        # Apply search filter
+        queryset = self._apply_search_filter(queryset)
+
+        # Apply post type filter
+        queryset = self._apply_type_filter(queryset)
+
+        return queryset.distinct().order_by('-created_at')
+
+    def _build_subscription_query(
+        self,
+        thought_leaders: list,
+        organizations: list,
+        topics: list
+    ) -> Q:
+        """
+        Build Q objects for subscription filtering.
+
+        Args:
+            thought_leaders: List of thought leader user IDs
+            organizations: List of organization IDs
+            topics: List of topic choices
+
+        Returns:
+            Q: Combined Q object for filtering
+        """
+        q_objects = Q()
+
+        if thought_leaders:
+            q_objects |= Q(author_user__in=thought_leaders)
+
+        if organizations:
+            q_objects |= Q(author_organization__in=organizations)
+
+        if topics:
+            # Posts that contain any of the subscribed topics
+            for topic in topics:
+                q_objects |= Q(topics__contains=topic)
+
+        return q_objects
+
+    def _apply_search_filter(self, queryset: QuerySet[FeedPost]) -> QuerySet[FeedPost]:
+        """
+        Apply search filter to queryset.
+
+        Args:
+            queryset: The base queryset
+
+        Returns:
+            QuerySet[FeedPost]: Filtered queryset
+        """
+        search = self.request.GET.get('search', '').strip()
         if search:
             queryset = queryset.filter(
                 Q(title__icontains=search) | Q(content__icontains=search)
             )
+        return queryset
 
-        # Filter by post type
-        post_type = self.request.GET.get('type', '')
+    def _apply_type_filter(self, queryset: QuerySet[FeedPost]) -> QuerySet[FeedPost]:
+        """
+        Apply post type filter to queryset.
+
+        Args:
+            queryset: The base queryset
+
+        Returns:
+            QuerySet[FeedPost]: Filtered queryset
+        """
+        post_type = self.request.GET.get('type', '').strip()
         if post_type:
-            queryset = queryset.filter(post_type=post_type)
-
-        return queryset.distinct().order_by('-created_at')
+            # Validate post_type against allowed choices
+            valid_types = [choice[0] for choice in FeedPost.POST_TYPE_CHOICES]
+            if post_type in valid_types:
+                queryset = queryset.filter(post_type=post_type)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -131,6 +200,12 @@ class FeedPostCreateView(LoginRequiredMixin, CreateView):
     template_name = 'feed/create.html'
 
     def form_valid(self, form):
+        """
+        Validate form and set author with authorization checks.
+
+        Returns:
+            HttpResponse: Redirect to success URL or error page
+        """
         user = self.request.user
 
         # Check if user is a thought leader
@@ -141,7 +216,15 @@ class FeedPostCreateView(LoginRequiredMixin, CreateView):
             # If form has organization field, use it; otherwise use first managed org
             org_id = self.request.POST.get('organization')
             if org_id:
-                form.instance.author_organization_id = org_id
+                # Verify user actually manages this organization
+                try:
+                    org = ProfessionalBody.objects.get(pk=org_id)
+                    if not org.admins.filter(id=user.id).exists():
+                        raise PermissionDenied("You don't have permission to post for this organization")
+                    form.instance.author_organization = org
+                except ProfessionalBody.DoesNotExist:
+                    messages.error(self.request, 'Invalid organization selected.')
+                    return redirect('feed:create')
             else:
                 form.instance.author_organization = user.managed_organizations.first()
         else:
@@ -150,6 +233,15 @@ class FeedPostCreateView(LoginRequiredMixin, CreateView):
 
         messages.success(self.request, 'Your post has been created successfully!')
         return super().form_valid(form)
+
+    def get_success_url(self) -> str:
+        """
+        Get the URL to redirect to after successful form submission.
+
+        Returns:
+            str: URL to the created post detail page
+        """
+        return reverse_lazy('feed:post_detail', kwargs={'pk': self.object.pk})
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -246,16 +338,27 @@ class ProfessionalBodyListView(LoginRequiredMixin, ListView):
 
 # HTMX Engagement Views
 @login_required
-def toggle_post_like(request, pk):
-    """Toggle like on a feed post (HTMX)"""
+def toggle_post_like(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Toggle like on a feed post (HTMX endpoint).
+
+    Uses shared toggle_like utility to eliminate code duplication.
+
+    Args:
+        request: The HTTP request from an authenticated user
+        pk: The primary key of the FeedPost to toggle like on
+
+    Returns:
+        HttpResponse: Rendered partial with updated like button HTML
+
+    Raises:
+        Http404: If post with given pk doesn't exist
+    """
     post = get_object_or_404(FeedPost, pk=pk)
 
-    if request.user in post.likes.all():
-        post.likes.remove(request.user)
-        liked = False
-    else:
-        post.likes.add(request.user)
-        liked = True
+    # Use shared utility function
+    liked, like_count = toggle_like(post, request.user)
+    post.like_count = like_count
 
     return render(request, 'feed/partials/like_button.html', {
         'post': post,
@@ -264,16 +367,27 @@ def toggle_post_like(request, pk):
 
 
 @login_required
-def toggle_comment_like(request, pk):
-    """Toggle like on a comment (HTMX)"""
+def toggle_comment_like(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Toggle like on a comment (HTMX endpoint).
+
+    Uses shared toggle_like utility to eliminate code duplication.
+
+    Args:
+        request: The HTTP request from an authenticated user
+        pk: The primary key of the Comment to toggle like on
+
+    Returns:
+        HttpResponse: Rendered partial with updated like button HTML
+
+    Raises:
+        Http404: If comment with given pk doesn't exist
+    """
     comment = get_object_or_404(Comment, pk=pk)
 
-    if request.user in comment.likes.all():
-        comment.likes.remove(request.user)
-        liked = False
-    else:
-        comment.likes.add(request.user)
-        liked = True
+    # Use shared utility function
+    liked, like_count = toggle_like(comment, request.user)
+    comment.like_count = like_count
 
     return render(request, 'feed/partials/comment_like_button.html', {
         'comment': comment,
@@ -282,25 +396,48 @@ def toggle_comment_like(request, pk):
 
 
 @login_required
-def create_comment(request, pk):
-    """Create a comment on a feed post (HTMX)"""
+def create_comment(request: HttpRequest, pk: int) -> HttpResponse:
+    """
+    Create a comment on a feed post (HTMX endpoint).
+
+    Validates comment content for length and non-empty value before creating.
+
+    Args:
+        request: The HTTP POST request from an authenticated user
+        pk: The primary key of the FeedPost to comment on
+
+    Returns:
+        HttpResponse: Rendered comment HTML on success, error message on failure
+
+    Raises:
+        Http404: If post with given pk doesn't exist
+    """
     post = get_object_or_404(FeedPost, pk=pk)
 
-    if request.method == 'POST':
-        content = request.POST.get('content', '').strip()
-        if content:
-            comment = Comment.objects.create(
-                post=post,
-                author=request.user,
-                content=content
-            )
-            return render(request, 'feed/partials/comment_item.html', {
-                'comment': comment
-            })
-        else:
-            return HttpResponse('<p class="text-red-500">Comment cannot be empty</p>', status=400)
+    if request.method != 'POST':
+        return HttpResponse('<p class="text-red-500">Invalid request method</p>', status=400)
 
-    return HttpResponse(status=400)
+    content = request.POST.get('content', '').strip()
+
+    # Validate content using shared utility
+    is_valid, error_msg = validate_text_length(content, "Comment", MAX_COMMENT_LENGTH)
+    if not is_valid:
+        return HttpResponse(error_msg, status=400)
+
+    try:
+        comment = Comment.objects.create(
+            post=post,
+            author=request.user,
+            content=content
+        )
+        return render(request, 'feed/partials/comment_item.html', {
+            'comment': comment
+        })
+    except Exception as e:
+        return HttpResponse(
+            f'<p class="text-red-500">Error creating comment: {str(e)}</p>',
+            status=500
+        )
 
 
 @login_required
@@ -364,23 +501,44 @@ def toggle_organization_subscription(request, pk):
 
 
 @login_required
-def load_more_posts(request):
-    """Load more posts for infinite scroll (HTMX)"""
-    page = int(request.GET.get('page', 1))
+def load_more_posts(request: HttpRequest) -> HttpResponse:
+    """
+    Load more posts for infinite scroll (HTMX endpoint).
+
+    Args:
+        request: The HTTP request with 'page' GET parameter
+
+    Returns:
+        HttpResponse: Rendered post list HTML for the requested page
+    """
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
+    # Get page number with error handling
+    try:
+        page = int(request.GET.get('page', 1))
+        if page < 1:
+            page = 1
+    except (ValueError, TypeError):
+        page = 1
 
     # Reuse the logic from FeedListView
     view = FeedListView()
     view.request = request
     view.paginate_by = 10
 
-    queryset = view.get_queryset()
+    try:
+        queryset = view.get_queryset()
 
-    # Paginate
-    from django.core.paginator import Paginator
-    paginator = Paginator(queryset, view.paginate_by)
-    posts = paginator.get_page(page)
+        # Paginate
+        paginator = Paginator(queryset, view.paginate_by)
+        posts = paginator.get_page(page)
 
-    return render(request, 'feed/partials/post_list.html', {
-        'posts': posts,
-        'page_obj': posts
-    })
+        return render(request, 'feed/partials/post_list.html', {
+            'posts': posts,
+            'page_obj': posts
+        })
+    except Exception as e:
+        return HttpResponse(
+            f'<p class="text-red-500">Error loading posts: {str(e)}</p>',
+            status=500
+        )

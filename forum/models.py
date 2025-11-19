@@ -38,15 +38,37 @@ class ForumPost(models.Model):
     def __str__(self):
         return self.title
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
+        """
+        Get the absolute URL for this forum post.
+
+        Returns:
+            str: The URL to view this post
+        """
         return reverse('forum:post_detail', kwargs={'pk': self.pk})
 
-    @property
-    def reply_count(self):
+    def get_reply_count(self) -> int:
+        """
+        Get the number of replies for this post.
+
+        Note: This method is deprecated. Use annotate(reply_count=Count('replies'))
+        in your queryset instead to avoid N+1 queries.
+
+        Returns:
+            int: Number of replies
+        """
         return self.replies.count()
 
-    @property
-    def like_count(self):
+    def get_like_count(self) -> int:
+        """
+        Get the number of likes for this post.
+
+        Note: This method is deprecated. Use annotate(like_count=Count('likes'))
+        in your queryset instead to avoid N+1 queries.
+
+        Returns:
+            int: Number of likes
+        """
         return self.likes.count()
 
 
@@ -65,6 +87,14 @@ class Reply(models.Model):
     def __str__(self):
         return f"Reply by {self.author.username} on {self.post.title}"
 
-    @property
-    def like_count(self):
+    def get_like_count(self) -> int:
+        """
+        Get the number of likes for this reply.
+
+        Note: This method is deprecated. Use annotate(like_count=Count('likes'))
+        in your queryset instead to avoid N+1 queries.
+
+        Returns:
+            int: Number of likes
+        """
         return self.likes.count()
